@@ -21,6 +21,8 @@ type Logger = ReturnType<typeof getLogger>;
 export interface SystemMessageOptions {
 	/** Agent profile/role description */
 	agentProfile: string;
+	/** Pre-loaded available agents content */
+	availableAgents?: null | string;
 	/** Escalation criteria to include */
 	escalationCriteria?: string[];
 	/** Expected output property names */
@@ -48,13 +50,21 @@ export class MessageBuilderService {
 	 * 1. Project Guidance - AI behaviour instructions
 	 * 2. Agent Profile - Role-specific instructions
 	 * 3. Prompt Content - Task-specific instructions
-	 * 4. Project Knowledge - Context for this task
-	 * 5. Output Format Instructions - Expected response structure
-	 * 6. Escalation Instructions - When to escalate
+	 * 4. Available Agents - Pre-loaded team references
+	 * 5. Project Knowledge - Context for this task
+	 * 6. Output Format Instructions - Expected response structure
+	 * 7. Escalation Instructions - When to escalate
 	 */
 	buildSystemMessage(options: SystemMessageOptions): string {
-		const { agentProfile, escalationCriteria, expectedOutputs, projectGuidance, projectKnowledge, promptContent } =
-			options;
+		const {
+			agentProfile,
+			availableAgents,
+			escalationCriteria,
+			expectedOutputs,
+			projectGuidance,
+			projectKnowledge,
+			promptContent
+		} = options;
 
 		const messageParts: string[] = [];
 
@@ -73,7 +83,13 @@ export class MessageBuilderService {
 		// 3. Add prompt content (task-specific instructions)
 		messageParts.push(promptContent);
 
-		// 4. Append project knowledge if available (context for this task)
+		// 4. Add available agents if provided (pre-loaded team references)
+		if (availableAgents) {
+			messageParts.push('');
+			messageParts.push(availableAgents);
+		}
+
+		// 5. Append project knowledge if available (context for this task)
 		if (projectKnowledge) {
 			messageParts.push('');
 			messageParts.push(projectKnowledge);

@@ -204,11 +204,19 @@ function formatGuidanceContent(guidance: GuidanceFile[]): string {
 }
 
 /**
+ * Cache for loaded agent content
+ * Key: comma-separated list of agent roles
+ * Value: combined agent content or null if no agents found
+ */
+const agentContentCache = new Map<string, null | string>();
+
+/**
  * Clear the guidance cache (useful for testing or when files change)
  */
 export function clearGuidanceCache(): void {
 	guidanceCache.clear();
 	knowledgeCache.clear();
+	agentContentCache.clear();
 }
 
 /**
@@ -505,4 +513,170 @@ export function hasProjectGuidance(): boolean {
  */
 export function getGuidanceFilePatterns(): readonly string[] {
 	return GUIDANCE_FILE_PATTERNS;
+}
+
+/**
+ * Load available agent definitions for pre-injection into the LLM context
+ *
+ * This pre-loads agent files so the LLM doesn't need to use read_file tool
+ * to access agent definitions. Agent files are loaded from .ai/agents/ directory.
+ *
+ * @param agentRoles - Array of agent role names to load (e.g., ['product-manager', 'lead'])
+ * @returns Combined content of requested agent files, or null if none found
+ */
+export async function loadAvailableAgents(agentRoles: string[]): Promise<null | string> {
+	const logger = getLogger();
+
+	if (!agentRoles || agentRoles.length === 0) {
+		logger.debug('No agents requested for pre-loading');
+		return null;
+	}
+
+	// Check cache
+	const cacheKey = [...agentRoles].sort().join(',');
+	const cached = getCachedAgents(cacheKey, agentRoles, logger);
+	if (cached !== undefined) {
+		return cached;
+	}
+
+	logger.debug('Loading available agents for pre-injection', { roles: agentRoles });
+
+	// Load agent files
+	const aiRoot = getAIRoot();
+	const agentsDir = path.join(aiRoot, 'agents');
+	const loadedAgents = await loadAgentFiles(agentsDir, agentRoles, logger);
+
+	if (loadedAgents.length === 0) {
+		logger.debug('No agent files found', { requestedRoles: agentRoles });
+		agentContentCache.set(cacheKey, null);
+		return null;
+	}
+
+	// Format, cache, and display feedback
+	const combinedContent = formatAgentContent(loadedAgents);
+	agentContentCache.set(cacheKey, combinedContent);
+	displayLoadedAgentsFeedback(loadedAgents, logger);
+
+	return combinedContent;
+}
+
+/**
+ * Get cached agents if available
+ */
+function getCachedAgents(
+	cacheKey: string,
+	agentRoles: string[],
+	logger: ReturnType<typeof getLogger>
+): null | string | undefined {
+	if (!agentContentCache.has(cacheKey)) {
+		return undefined;
+	}
+
+	const cached = agentContentCache.get(cacheKey);
+	if (cached === undefined) {
+		return undefined;
+	}
+
+	logger.debug('Using cached agent content', { roles: agentRoles });
+
+	if (cached !== null) {
+		const feedback = getProcessingFeedback();
+		const color = getColorAdapter();
+		const roleList = agentRoles.join(', ');
+		feedback.showInfo(`${color.bold(color.magenta('Available agents loaded'))}: ${roleList} ${color.dim('(cached)')}`);
+	}
+
+	return cached;
+}
+
+/**
+ * Load agent files from disk
+ */
+async function loadAgentFiles(
+	agentsDir: string,
+	agentRoles: string[],
+	logger: ReturnType<typeof getLogger>
+): Promise<Array<{ content: string; role: string }>> {
+	const loadedAgents: Array<{ content: string; role: string }> = [];
+
+	for (const role of agentRoles) {
+		const agentFile = path.join(agentsDir, `${role}.md`);
+
+		if (!fileExists(agentFile)) {
+			logger.warn(`Agent file not found: ${role}`, { path: agentFile });
+			continue;
+		}
+
+		try {
+			const content = await readFile(agentFile);
+
+			if (content.trim()) {
+				loadedAgents.push({
+					content: content.trim(),
+					role
+				});
+				logger.debug(`Loaded agent file: ${role}`, { contentLength: content.length });
+			}
+		} catch (error) {
+			logger.warn(`Failed to read agent file: ${role}`, {
+				error: (error as Error).message
+			});
+		}
+	}
+
+	return loadedAgents;
+}
+
+/**
+ * Display feedback for loaded agent files
+ */
+function displayLoadedAgentsFeedback(
+	loadedAgents: Array<{ content: string; role: string }>,
+	logger: ReturnType<typeof getLogger>
+): void {
+	logger.info(`Loaded ${loadedAgents.length} agent file(s) for pre-injection`, {
+		roles: loadedAgents.map((a) => a.role)
+	});
+
+	const feedback = getProcessingFeedback();
+	const color = getColorAdapter();
+	for (const { role } of loadedAgents) {
+		feedback.showInfo(`${color.bold(color.magenta('Available agent loaded'))}: ${role}`);
+	}
+}
+
+/**
+ * Format agent content for pre-injection into the LLM context
+ */
+function formatAgentContent(agents: Array<{ content: string; role: string }>): string {
+	const sections: string[] = [];
+
+	sections.push('## AVAILABLE AGENTS (PRE-LOADED TEAM REFERENCES)');
+	sections.push('');
+	sections.push(
+		'The following agent definitions are pre-loaded for your reference. ' +
+			'You do NOT need to use read_file to access these agent files - their content is provided below. ' +
+			'Use this information to understand the roles and capabilities of team members.'
+	);
+	sections.push('');
+
+	for (const { content, role } of agents) {
+		sections.push(`### Agent: ${role}`);
+		sections.push('');
+		sections.push(content);
+		sections.push('');
+	}
+
+	sections.push('---');
+	sections.push('END OF AVAILABLE AGENTS');
+	sections.push('---');
+
+	return sections.join('\n');
+}
+
+/**
+ * Clear only the agent content cache (useful when agent files change)
+ */
+export function clearAgentContentCache(): void {
+	agentContentCache.clear();
 }

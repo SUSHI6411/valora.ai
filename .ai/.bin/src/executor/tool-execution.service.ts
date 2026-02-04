@@ -17,7 +17,7 @@
  * - query_session: Query previous session data for context reuse
  */
 
-import type { ExternalMCPServerConfig } from 'types/mcp-client.types';
+import type { MCPClientManagerService } from 'services/mcp-client-manager.service';
 import type { LLMToolCall, LLMToolDefinition, LLMToolResult } from 'types/llm.types';
 
 import { exec } from 'child_process';
@@ -27,10 +27,9 @@ import { getColorAdapter } from 'output/color-adapter.interface';
 import { getConsoleOutput } from 'output/console-output';
 import { getLogger } from 'output/logger';
 import { getIdempotencyStore, type IdempotencyStoreService } from 'services/idempotency-store.service';
-import type { MCPClientManagerService } from 'services/mcp-client-manager.service';
 import { type AllowedTool, type BuiltInTool, isMCPTool, type MCPTool } from 'types/command.types';
-import { getServerIdFromTool } from 'types/mcp-registry.types';
 import { type IdempotencyOptions, isIdempotentTool } from 'types/idempotency.types';
+import { getServerIdFromTool } from 'types/mcp-registry.types';
 import { SemanticAttributes, SpanKind, type TraceContext } from 'types/tracing.types';
 import { getPromptAdapter } from 'ui/prompt-adapter.interface';
 import { promisify } from 'util';
@@ -422,6 +421,39 @@ export class ToolExecutionService {
 	}
 
 	/**
+	 * Build the description for an MCP tool definition
+	 */
+	private buildMCPToolDescription(
+		serverId: string,
+		serverDescription: string,
+		availableToolNames: string[],
+		capabilities?: string[]
+	): string {
+		let description = `Call tools on the ${serverId} MCP server. ${serverDescription}`;
+
+		if (availableToolNames.length > 0) {
+			description += `\n\nAvailable tools: ${availableToolNames.join(', ')}`;
+		} else {
+			description += '\n\nThe server will be connected on first use, and available tools will be discovered.';
+		}
+
+		if (capabilities) {
+			description += `\n\nCapabilities: ${capabilities.join(', ')}`;
+		}
+
+		return description;
+	}
+
+	/**
+	 * Get the tool_name parameter description based on available tools
+	 */
+	private getToolNameDescription(availableToolNames: string[]): string {
+		return availableToolNames.length > 0
+			? `The name of the tool to call. Available: ${availableToolNames.join(', ')}`
+			: 'The name of the tool to call on this MCP server';
+	}
+
+	/**
 	 * Generate a gateway tool definition for an MCP tool
 	 * This creates a tool that accepts tool_name and arguments parameters,
 	 * allowing the LLM to call any tool on the connected MCP server.
@@ -433,36 +465,13 @@ export class ToolExecutionService {
 			return null;
 		}
 
-		// Get server config for description (if client manager available)
-		let serverDescription = `External MCP server: ${serverId}`;
-		let serverConfig: ExternalMCPServerConfig | null = null;
-
-		if (this.mcpClientManager) {
-			// Note: getServerConfig is async, but we need sync access here
-			// The description will be generic until server is connected
-			const connectedServer = this.mcpClientManager.getConnectedServer(serverId);
-			if (connectedServer) {
-				serverConfig = connectedServer.config;
-				serverDescription = connectedServer.config.description;
-			}
-		}
-
-		// Check if server is already connected and has tools
+		// Get server info if connected
 		const connectedServer = this.mcpClientManager?.getConnectedServer(serverId);
+		const serverDescription = connectedServer?.config.description ?? `External MCP server: ${serverId}`;
 		const availableToolNames = connectedServer?.availableTools.map((t) => t.name) ?? [];
+		const capabilities = connectedServer?.config.security.capabilities;
 
-		// Build description with available tools if known
-		let description = `Call tools on the ${serverId} MCP server. ${serverDescription}`;
-		if (availableToolNames.length > 0) {
-			description += `\n\nAvailable tools: ${availableToolNames.join(', ')}`;
-		} else {
-			description += '\n\nThe server will be connected on first use, and available tools will be discovered.';
-		}
-
-		// Add capabilities info if available
-		if (serverConfig?.security.capabilities) {
-			description += `\n\nCapabilities: ${serverConfig.security.capabilities.join(', ')}`;
-		}
+		const description = this.buildMCPToolDescription(serverId, serverDescription, availableToolNames, capabilities);
 
 		return {
 			description,
@@ -476,10 +485,7 @@ export class ToolExecutionService {
 						type: 'object'
 					},
 					tool_name: {
-						description:
-							availableToolNames.length > 0
-								? `The name of the tool to call. Available: ${availableToolNames.join(', ')}`
-								: 'The name of the tool to call on this MCP server',
+						description: this.getToolNameDescription(availableToolNames),
 						type: 'string'
 					}
 				},

@@ -16,10 +16,15 @@ import type {
 } from 'types/llm.types';
 import type { PromptDefinition } from 'types/prompt.types';
 
+import { MCPApprovalWorkflow } from 'cli/mcp-approval-workflow';
 import { DEFAULT_MAX_TOKENS, DEFAULT_TEMPERATURE } from 'config/constants';
 import { ProviderName } from 'config/providers.config';
 import { existsSync } from 'fs';
 import { getLogger } from 'output/logger';
+import { MCPApprovalCacheService } from 'services/mcp-approval-cache.service';
+import { MCPAuditLoggerService } from 'services/mcp-audit-logger.service';
+import { MCPAvailabilityService } from 'services/mcp-availability.service';
+import { MCPClientManagerService } from 'services/mcp-client-manager.service';
 import { ResolutionPath } from 'types/provider.types';
 import { formatErrorMessage } from 'utils/error-utils';
 import { readFile } from 'utils/file-utils';
@@ -28,20 +33,13 @@ import type { AgentLoader } from './agent-loader';
 import type { ExecutionContext } from './execution-context';
 import type { PromptLoader } from './prompt-loader';
 
-import { MCPApprovalCacheService } from 'services/mcp-approval-cache.service';
-import { MCPAuditLoggerService } from 'services/mcp-audit-logger.service';
-import { MCPAvailabilityService } from 'services/mcp-availability.service';
-import { MCPClientManagerService } from 'services/mcp-client-manager.service';
-
-import { MCPApprovalWorkflow } from 'cli/mcp-approval-workflow';
-
 import { type EscalationDetectionService, getEscalationDetectionService } from './escalation-detection.service';
 import { type EscalationHandlerService, getEscalationHandlerService } from './escalation-handler.service';
 import { getMCPToolHandler, type MCPToolHandler } from './mcp-tool-handler';
 import { getMessageBuilderService, type MessageBuilderService } from './message-builder.service';
 import { getOutputParsingService, type OutputParsingService } from './output-parsing.service';
 import { getPipelineEmitter, type PipelineEventEmitter } from './pipeline-events';
-import { loadProjectGuidance, loadProjectKnowledge } from './project-guidance-loader';
+import { loadAvailableAgents, loadProjectGuidance, loadProjectKnowledge } from './project-guidance-loader';
 import { getStageOutputCache, type StageOutputCache } from './stage-output-cache';
 import { getStageValidationService, type StageValidationService } from './stage-validation.service';
 import { getToolExecutionService, type ToolExecutionService } from './tool-execution.service';
@@ -438,6 +436,7 @@ export class StageExecutor {
 		executionContext: ExecutionContext
 	): Promise<{
 		agent: AgentDefinition;
+		availableAgents: null | string;
 		escalationCriteria?: string[];
 		projectGuidance: null | string;
 		projectKnowledge: null | string;
@@ -447,9 +446,11 @@ export class StageExecutor {
 		const agent = await this.agentLoader.loadAgent(executionContext.agentRole);
 		const projectGuidance = await loadProjectGuidance();
 		const projectKnowledge = await loadProjectKnowledge(executionContext.knowledgeFiles ?? []);
+		const availableAgents = await loadAvailableAgents(prompt.agents ?? []);
 
 		return {
 			agent,
+			availableAgents,
 			escalationCriteria: agent.decision_making?.escalation_criteria,
 			projectGuidance,
 			projectKnowledge,
@@ -483,6 +484,7 @@ export class StageExecutor {
 		stage: PipelineStage,
 		resources: {
 			agent: AgentDefinition;
+			availableAgents: null | string;
 			escalationCriteria?: string[];
 			projectGuidance: null | string;
 			projectKnowledge: null | string;
@@ -492,6 +494,7 @@ export class StageExecutor {
 	): { systemMessage: string; userMessage: string } {
 		const systemMessage = this.messageBuilderService.buildSystemMessage({
 			agentProfile: resources.agent.content,
+			availableAgents: resources.availableAgents,
 			escalationCriteria: resources.escalationCriteria,
 			expectedOutputs: stage.outputs,
 			projectGuidance: resources.projectGuidance,
