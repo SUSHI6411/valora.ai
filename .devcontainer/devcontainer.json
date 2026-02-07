@@ -31,8 +31,6 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "VisualStudioExptTeam.vscodeintellicode",
-        "christian-kohler.path-intellisense",
         "eamodio.gitlens",
         "yzhang.markdown-all-in-one",
         "bierner.markdown-mermaid",
