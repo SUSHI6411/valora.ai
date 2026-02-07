@@ -10,7 +10,7 @@ allowed-tools:
   - list_dir
   - glob_file_search
   - run_terminal_cmd
-model: claude-sonnet-4.5
+model: claude-haiku-4.5
 agent: lead
 prompts:
   pipeline:

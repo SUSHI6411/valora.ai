@@ -10,7 +10,7 @@ allowed-tools:
   - glob_file_search
   - codebase_search
   - grep
-model: claude-haiku-4.5
+model: gpt-5-thinking-high
 agent: product-manager
 prompts:
   pipeline:
@@ -125,12 +125,12 @@ Transform a **Product Requirements Document (PRD)** into a **prioritized, action
 
 The command executes a **5-stage sequential pipeline**. Each stage is handled by a dedicated prompt (see `.ai/prompts/` directory):
 
-| Stage            | Prompt                                     | Purpose                                                   | Key Outputs                                                    |
-| ---------------- | ------------------------------------------ | --------------------------------------------------------- | -------------------------------------------------------------- |
-| **1. Context**   | `context.load-prd`                         | Locate and parse PRD, extract requirements                | `prd_document`, `requirements_list`                            |
-| **2. Onboard**   | `onboard.analyze-requirements`             | Analyze complexity, map dependencies, create user stories | `requirement_analysis`, `dependency_graph`, `complexity_map`   |
-| **3. Breakdown** | `plan.decompose-tasks`                     | Decompose requirements into actionable tasks              | `task_list`, `task_dependencies`, `priority_order`             |
-| **4. Review**    | `review.validate-backlog`                  | Validate completeness, quality, coverage                  | `validation_results`, `coverage_score`, `gaps_identified`      |
+| Stage            | Prompt                                     | Purpose                                                   | Key Outputs                                                                        |
+| ---------------- | ------------------------------------------ | --------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| **1. Context**   | `context.load-prd`                         | Locate and parse PRD, extract requirements                | `prd_document`, `requirements_list`                                                |
+| **2. Onboard**   | `onboard.analyze-requirements`             | Analyze complexity, map dependencies, create user stories | `requirement_analysis`, `dependency_graph`, `complexity_map`                       |
+| **3. Breakdown** | `plan.decompose-tasks`                     | Decompose requirements into actionable tasks              | `task_list`, `task_dependencies`, `priority_order`                                 |
+| **4. Review**    | `review.validate-backlog`                  | Validate completeness, quality, coverage                  | `validation_results`, `coverage_score`, `gaps_identified`                          |
 | **5. Generate**  | `documentation.generate-backlog-artifacts` | Create backlog files and artifacts                        | `backlog_document`, `backlog_file_path`, `backup_file_path`, `generated_artifacts` |
 
 **Pipeline behavior**:
@@ -328,11 +328,11 @@ Print the following summary at command completion:
 **Total Tasks**: [N] tasks across [N] phases
 
 ### Task Distribution
-| Priority | Count | Effort |
-|----------|-------|--------|
-| P0 (Critical) | [N] | [X] SP |
-| P1 (High) | [N] | [X] SP |
-| P2 (Medium) | [N] | [X] SP |
+| Priority      | Count | Effort |
+| ------------- | ----- | ------ |
+| P0 (Critical) | [N]   | [X] SP |
+| P1 (High)     | [N]   | [X] SP |
+| P2 (Medium)   | [N]   | [X] SP |
 
 ### Phases
 1. **[Phase 1 Name]**: [N] tasks

@@ -9,7 +9,7 @@ allowed-tools:
   - grep
   - list_dir
   - glob_file_search
-model: claude-sonnet-4.5
+model: claude-opus-4.5
 agent: lead
 prompts:
   pipeline:
@@ -141,12 +141,12 @@ The implementation planning process inherits:
 
 Inherit from architecture plan. Ensure all implementation steps use:
 
-| Category | Required Tool |
-|----------|---------------|
-| **Package Manager** | pnpm |
-| **Unit/Integration Testing** | Vitest |
-| **E2E Testing** | Playwright |
-| **Test Containers** | Testcontainers |
+| Category                     | Required Tool  |
+| ---------------------------- | -------------- |
+| **Package Manager**          | pnpm           |
+| **Unit/Integration Testing** | Vitest         |
+| **E2E Testing**              | Playwright     |
+| **Test Containers**          | Testcontainers |
 
 ### Implementation Plan Requirements
 

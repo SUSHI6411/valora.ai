@@ -10,7 +10,7 @@ allowed-tools:
   - grep
   - list_dir
   - glob_file_search
-model: claude-haiku-4.5
+model: claude-opus-4.5
 agent: product-manager
 prompts:
   pipeline:

@@ -12,7 +12,7 @@ allowed-tools:
   - run_terminal_cmd
   # MCP: GitHub for PR creation, commits, issues, branches
   - mcp_github
-model: claude-sonnet-4.5
+model: claude-haiku-4.5
 agent: lead
 prompts:
   pipeline:

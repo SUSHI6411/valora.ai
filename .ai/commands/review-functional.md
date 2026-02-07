@@ -16,7 +16,7 @@ allowed-tools:
   - mcp_figma
   # MCP: Component documentation verification
   - mcp_storybook
-model: claude-sonnet-4.5
+model: claude-opus-4.5
 agent: lead
 prompts:
   pipeline:
@@ -170,11 +170,11 @@ Print the following summary at command completion:
 **Decision**: APPROVED - All acceptance criteria met
 
 ### Requirements Coverage
-| Requirement | Status |
-|-------------|--------|
-| [REQ-001] [Description] | ✅ Met |
-| [REQ-002] [Description] | ✅ Met |
-| [REQ-003] [Description] | ✅ Met |
+| Requirement             | Status |
+| ----------------------- | ------ |
+| [REQ-001] [Description] | ✅ Met  |
+| [REQ-002] [Description] | ✅ Met  |
+| [REQ-003] [Description] | ✅ Met  |
 
 ### User Workflows Validated
 - ✅ [Primary user flow]
@@ -194,9 +194,9 @@ Print the following summary at command completion:
 **Decision**: CHANGES REQUESTED - Functional gaps identified
 
 ### Requirements Coverage
-| Requirement | Status |
-|-------------|--------|
-| [REQ-001] [Description] | ✅ Met |
+| Requirement             | Status    |
+| ----------------------- | --------- |
+| [REQ-001] [Description] | ✅ Met     |
 | [REQ-002] [Description] | ❌ Not Met |
 | [REQ-003] [Description] | ⚠️ Partial |
 

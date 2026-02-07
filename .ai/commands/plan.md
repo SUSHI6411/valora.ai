@@ -13,7 +13,7 @@ allowed-tools:
   - mcp_github
   # MCP: Semantic context search
   - mcp_context7
-model: claude-sonnet-4.5
+model: claude-opus-4.5
 agent: lead
 prompts:
   pipeline:

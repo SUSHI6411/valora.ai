@@ -18,7 +18,7 @@ allowed-tools:
   - mcp_deep_research
   # MCP: GitHub repository context
   - mcp_github
-model: gpt-5-thinking-high
+model: claude-haiku-4.5
 agent: lead
 prompts:
   pipeline:
@@ -813,8 +813,8 @@ Print the following summary at command completion:
 **Status**: Partial - gaps identified
 
 ### Knowledge Gaps
-| Area | Impact | Recommendation |
-|------|--------|----------------|
+| Area   | Impact         | Recommendation   |
+| ------ | -------------- | ---------------- |
 | [Area] | [High/Med/Low] | [How to resolve] |
 
 ### Documents Generated

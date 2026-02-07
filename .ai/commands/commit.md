@@ -13,7 +13,7 @@ allowed-tools:
   - web_search
   # MCP: GitHub for issue/ticket linking
   - mcp_github
-model: claude-sonnet-4.5
+model: claude-haiku-4.5
 agent: lead
 prompts:
   pipeline:

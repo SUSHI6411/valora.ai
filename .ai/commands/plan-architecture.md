@@ -9,7 +9,7 @@ allowed-tools:
   - grep
   - list_dir
   - glob_file_search
-model: claude-sonnet-4.5
+model: claude-opus-4.5
 agent: lead
 prompts:
   pipeline:
@@ -119,12 +119,12 @@ The architecture planning process leverages:
 
 When planning for a **TypeScript project**, the following technology stack is **MANDATORY**:
 
-| Category | Required Tool | Purpose |
-|----------|---------------|---------|
-| **Package Manager** | pnpm | Dependency management |
-| **Unit/Integration Testing** | Vitest | Fast, modern test runner |
-| **E2E Testing** | Playwright | Browser automation |
-| **Test Containers** | Testcontainers | Containerised test dependencies |
+| Category                     | Required Tool  | Purpose                         |
+| ---------------------------- | -------------- | ------------------------------- |
+| **Package Manager**          | pnpm           | Dependency management           |
+| **Unit/Integration Testing** | Vitest         | Fast, modern test runner        |
+| **E2E Testing**              | Playwright     | Browser automation              |
+| **Test Containers**          | Testcontainers | Containerised test dependencies |
 
 ### Architecture Plan Requirements
 

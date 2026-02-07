@@ -14,7 +14,7 @@ allowed-tools:
   - mcp_playwright
   # MCP: Cross-browser testing (optional)
   - mcp_browserstack
-model: claude-haiku-4.5
+model: claude-sonnet-4.5
 agent: qa
 prompts:
   pipeline:
@@ -191,11 +191,11 @@ Print the following summary at command completion:
 **Coverage**: [XX]% (threshold: 80%)
 
 ### Test Results
-| Type | Pass | Fail | Skip |
-|------|------|------|------|
-| Unit | [N] | 0 | [N] |
-| Integration | [N] | 0 | [N] |
-| E2E | [N] | 0 | [N] |
+| Type        | Pass | Fail | Skip |
+| ----------- | ---- | ---- | ---- |
+| Unit        | [N]  | 0    | [N]  |
+| Integration | [N]  | 0    | [N]  |
+| E2E         | [N]  | 0    | [N]  |
 
 ### Coverage Summary
 - **Statements**: [XX]%
@@ -216,11 +216,11 @@ Print the following summary at command completion:
 **Failures**: [N] tests failed
 
 ### Test Results
-| Type | Pass | Fail | Skip |
-|------|------|------|------|
-| Unit | [N] | [N] | [N] |
-| Integration | [N] | [N] | [N] |
-| E2E | [N] | [N] | [N] |
+| Type        | Pass | Fail | Skip |
+| ----------- | ---- | ---- | ---- |
+| Unit        | [N]  | [N]  | [N]  |
+| Integration | [N]  | [N]  | [N]  |
+| E2E         | [N]  | [N]  | [N]  |
 
 ### Failed Tests
 1. **[test-name]**: [failure reason]
@@ -239,11 +239,11 @@ Print the following summary at command completion:
 **Coverage**: [XX]% (below threshold: 80%)
 
 ### Test Results
-| Type | Pass | Fail | Skip |
-|------|------|------|------|
-| Unit | [N] | 0 | [N] |
-| Integration | [N] | 0 | [N] |
-| E2E | [N] | 0 | [N] |
+| Type        | Pass | Fail | Skip |
+| ----------- | ---- | ---- | ---- |
+| Unit        | [N]  | 0    | [N]  |
+| Integration | [N]  | 0    | [N]  |
+| E2E         | [N]  | 0    | [N]  |
 
 ### Warnings
 - Coverage below threshold ([XX]% vs 80%)

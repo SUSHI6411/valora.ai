@@ -15,7 +15,7 @@ allowed-tools:
   - mcp_github_pull_request_read
   - mcp_github_list_commits
   - mcp_github_get_commit
-model: claude-sonnet-4.5
+model: gpt-5-thinking-high
 agent: product-manager
 stash_protection: true
 prompts:
@@ -550,17 +550,17 @@ Print the following summary at command completion:
 **Duration**: [X] minutes
 
 ### Performance Metrics
-| Metric | Score |
-|--------|-------|
+| Metric          | Score    |
+| --------------- | -------- |
 | Time Efficiency | [XX]/100 |
-| Error Rate | [X]% |
-| Completion Rate | [XX]% |
+| Error Rate      | [X]%     |
+| Completion Rate | [XX]%    |
 
 ### Quality Metrics
-| Metric | Score |
-|--------|-------|
-| Code Quality | [XX]/100 |
-| Test Quality | [XX]/100 |
+| Metric         | Score    |
+| -------------- | -------- |
+| Code Quality   | [XX]/100 |
+| Test Quality   | [XX]/100 |
 | Review Quality | [XX]/100 |
 
 ### Key Insights
