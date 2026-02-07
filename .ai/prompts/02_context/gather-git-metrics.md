@@ -106,11 +106,13 @@ git diff --numstat main...HEAD | awk '{add+=$1; del+=$2} END {print add, del, ad
 Use GitHub MCP:
 
 ```javascript
-mcp_github_pull_request_read({
-  method: "get",
-  owner: "<owner>",
-  repo: "<repo>",
-  pullNumber: pr_number
+mcp_github({
+  tool_name: "get_pull_request",
+  arguments: {
+    owner: "<owner>",
+    repo: "<repo>",
+    pull_number: pr_number
+  }
 })
 ```
 

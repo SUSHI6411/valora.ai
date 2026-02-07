@@ -108,8 +108,11 @@ If GitHub MCP tools are available and ticket is GitHub issue:
 ```typescript
 if (ticket_number.startsWith('#')) {
   const issue_num = parseInt(ticket_number.substring(1));
-  // Use mcp_github_issue_read
-  const details = await github.getIssue(issue_num);
+  // Use mcp_github with tool_name: "get_issue"
+  const details = await mcp_github({
+    tool_name: "get_issue",
+    arguments: { owner, repo, issue_number: issue_num }
+  });
 }
 ```
 

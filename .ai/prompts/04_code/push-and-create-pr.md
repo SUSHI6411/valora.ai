@@ -145,15 +145,18 @@ gh pr create \
 **Alternative method**: Use GitHub API tool
 
 ```
-mcp_github_create_pull_request(
-  owner: "<owner>",
-  repo: "<repo>",
-  title: "<pr_title>",
-  body: "<pr_description>",
-  base: "<base_branch>",
-  head: "<current_branch>",
-  draft: <draft>
-)
+mcp_github({
+  tool_name: "create_pull_request",
+  arguments: {
+    owner: "<owner>",
+    repo: "<repo>",
+    title: "<pr_title>",
+    body: "<pr_description>",
+    base: "<base_branch>",
+    head: "<current_branch>",
+    draft: <draft>
+  }
+})
 ```
 
 **Parameters**:
@@ -184,12 +187,15 @@ gh pr edit <pr_number> --add-reviewer <user1>,<user2>
 **Using GitHub API**:
 
 ```
-mcp_github_update_pull_request(
-  owner: "<owner>",
-  repo: "<repo>",
-  pullNumber: <pr_number>,
-  reviewers: ["user1", "user2"]
-)
+mcp_github({
+  tool_name: "request_reviewers",
+  arguments: {
+    owner: "<owner>",
+    repo: "<repo>",
+    pull_number: <pr_number>,
+    reviewers: ["user1", "user2"]
+  }
+})
 ```
 
 **Handle errors**:

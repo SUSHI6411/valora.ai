@@ -11,10 +11,7 @@ allowed-tools:
   - glob_file_search
   - run_terminal_cmd
   - query_session
-  - mcp_github_get_me
-  - mcp_github_pull_request_read
-  - mcp_github_list_commits
-  - mcp_github_get_commit
+  - mcp_github
 model: gpt-5-thinking-high
 agent: product-manager
 stash_protection: true

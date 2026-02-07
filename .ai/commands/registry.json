@@ -24,7 +24,7 @@
     "create-pr": {
       "name": "create-pr",
       "description": "Generate and submit pull requests with intelligent title/description generation, automated reviewer assignment, label management, and quality validation",
-      "experimental": true,"argument-hint": "'[--title=\"<custom-title>\"] [--draft] [--base=<branch>] [--reviewers=<user1,user2>] [--labels=<label1,label2>] [--auto-assign] [--template=<name>] [--link-issues] [--require-checks] [--auto-merge] [--squash] [--no-push]'","allowed-tools": ["codebase_search","read_file","grep","list_dir","glob_file_search","run_terminal_cmd","mcp_github_create_pull_request","mcp_github_list_commits","mcp_github_get_commit","mcp_github_search_issues","mcp_github_get_me","mcp_github_get_file_contents","mcp_github_list_branches"],
+      "experimental": true,"argument-hint": "'[--title=\"<custom-title>\"] [--draft] [--base=<branch>] [--reviewers=<user1,user2>] [--labels=<label1,label2>] [--auto-assign] [--template=<name>] [--link-issues] [--require-checks] [--auto-merge] [--squash] [--no-push]'","allowed-tools": ["codebase_search","read_file","grep","list_dir","glob_file_search","run_terminal_cmd","mcp_github"],
       "model": "claude-sonnet-4.5",
       "agent": "lead"
     },
@@ -38,7 +38,7 @@
     "feedback": {
       "name": "feedback",
       "description": "Capture outcomes and user feedback to refine agents and prompts through continuous learning and workflow optimization",
-      "experimental": true,"argument-hint": "'[--command=<command-name>] [--pr=<pr-number>] [--satisfaction=<1-10>] [--interactive] [--metrics] [--suggest-improvements] [--export=<format>] [--no-stash]'","allowed-tools": ["codebase_search","read_file","grep","list_dir","glob_file_search","run_terminal_cmd","query_session","mcp_github_get_me","mcp_github_pull_request_read","mcp_github_list_commits","mcp_github_get_commit"],
+      "experimental": true,"argument-hint": "'[--command=<command-name>] [--pr=<pr-number>] [--satisfaction=<1-10>] [--interactive] [--metrics] [--suggest-improvements] [--export=<format>] [--no-stash]'","allowed-tools": ["codebase_search","read_file","grep","list_dir","glob_file_search","run_terminal_cmd","query_session","mcp_github"],
       "model": "claude-sonnet-4.5",
       "agent": "product-manager"
     },
