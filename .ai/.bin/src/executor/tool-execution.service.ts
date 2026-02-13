@@ -791,13 +791,7 @@ export class ToolExecutionService {
 			throw new Error('write requires path and content arguments');
 		}
 
-		// Validate path is not in forbidden paths (.ai/ folder)
-		validateNotForbiddenPath(path, 'write to');
-
-		const fullPath = this.resolvePath(path);
-
-		// Also validate the resolved full path
-		validateNotForbiddenPath(fullPath, 'write to');
+		const fullPath = this.validateAndResolvePath(path, 'write to');
 
 		// Check if this is a protected file that already exists
 		const fileName = path.split('/').pop() ?? path;
@@ -962,13 +956,7 @@ export class ToolExecutionService {
 			throw new Error('search_replace requires path, old_str, and new_str arguments');
 		}
 
-		// Validate path is not in forbidden paths (.ai/ folder)
-		validateNotForbiddenPath(path, 'modify');
-
-		const fullPath = this.resolvePath(path);
-
-		// Also validate the resolved full path
-		validateNotForbiddenPath(fullPath, 'modify');
+		const fullPath = this.validateAndResolvePath(path, 'modify');
 
 		if (!existsSync(fullPath)) {
 			throw new Error(`File not found: ${path}`);
@@ -1001,31 +989,21 @@ export class ToolExecutionService {
 			return Promise.reject(new Error('delete_file requires path argument'));
 		}
 
-		// Validate path is not in forbidden paths (.ai/ folder)
 		try {
-			validateNotForbiddenPath(path, 'delete');
+			const fullPath = this.validateAndResolvePath(path, 'delete');
+
+			if (!existsSync(fullPath)) {
+				return Promise.reject(new Error(`File not found: ${path}`));
+			}
+
+			rmSync(fullPath);
+
+			this.logger.info(`Deleted file: ${fullPath}`);
+
+			return Promise.resolve(`Successfully deleted ${path}`);
 		} catch (error) {
 			return Promise.reject(error);
 		}
-
-		const fullPath = this.resolvePath(path);
-
-		// Also validate the resolved full path
-		try {
-			validateNotForbiddenPath(fullPath, 'delete');
-		} catch (error) {
-			return Promise.reject(error);
-		}
-
-		if (!existsSync(fullPath)) {
-			return Promise.reject(new Error(`File not found: ${path}`));
-		}
-
-		rmSync(fullPath);
-
-		this.logger.info(`Deleted file: ${fullPath}`);
-
-		return Promise.resolve(`Successfully deleted ${path}`);
 	}
 
 	/**
@@ -1103,6 +1081,27 @@ export class ToolExecutionService {
 			return path;
 		}
 		return `${this.workingDir}/${path}`;
+	}
+
+	/**
+	 * Validate and resolve a path for write operations.
+	 * Validates both the original path and the resolved full path against forbidden paths.
+	 *
+	 * @param path - The path to validate and resolve
+	 * @param operation - The operation being attempted (e.g., "write to", "delete", "modify")
+	 * @returns The resolved full path
+	 * @throws Error if the path is in a forbidden location
+	 */
+	private validateAndResolvePath(path: string, operation: string): string {
+		// Validate the original path
+		validateNotForbiddenPath(path, operation);
+
+		const fullPath = this.resolvePath(path);
+
+		// Also validate the resolved path (catches absolute path manipulation)
+		validateNotForbiddenPath(fullPath, operation);
+
+		return fullPath;
 	}
 
 	/**

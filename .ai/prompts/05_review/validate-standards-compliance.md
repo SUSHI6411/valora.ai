@@ -43,18 +43,27 @@ Execute linting tools, check code formatting, and validate naming conventions to
 
 ### Step 1: Run Linting Tools
 
-Execute the project's configured linters:
+Execute the project's configured linters on **project files only**.
+
+**IMPORTANT: Infrastructure Exclusions**
+
+VALORA validates the project being built, NOT its own infrastructure. Always exclude:
+- `.ai/` - VALORA infrastructure
+- `.git/` - Git internal state
+- `node_modules/` - Package dependencies
 
 ```bash
-# JavaScript/TypeScript
+# JavaScript/TypeScript - use project's npm script if available
 npm run lint -- --max-warnings 0
 
-# Or directly
-pnpm exec eslint . --ext .ts,.tsx,.js,.jsx --max-warnings 0
+# Or directly with explicit exclusions (NEVER lint .ai folder)
+pnpm exec eslint src --ext .ts,.tsx,.js,.jsx --max-warnings 0 --ignore-pattern ".ai/**"
 
-# CSS/SCSS
-pnpm exec stylelint "**/*.{css,scss}"
+# CSS/SCSS with exclusions
+pnpm exec stylelint "src/**/*.{css,scss}" --ignore-pattern ".ai/**"
 ```
+
+**Note**: Target specific project directories (e.g., `src/`, `app/`, `lib/`) rather than the root `.` to avoid accidentally including infrastructure files.
 
 **Capture**:
 - Total error count
@@ -64,12 +73,17 @@ pnpm exec stylelint "**/*.{css,scss}"
 
 ### Step 2: Check Code Formatting
 
-Verify formatting consistency:
+Verify formatting consistency on **project files only**:
 
 ```bash
-# Prettier
-pnpm exec prettier --check "**/*.{ts,tsx,js,jsx,css,scss,md,json}"
+# Prettier with exclusions (NEVER format-check .ai folder)
+pnpm exec prettier --check "src/**/*.{ts,tsx,js,jsx,css,scss,md,json}" --ignore-path .gitignore
+
+# Or if project has multiple source directories
+pnpm exec prettier --check "{src,app,lib}/**/*.{ts,tsx,js,jsx,css,scss,md,json}"
 ```
+
+**Note**: Target specific project directories rather than `**/*` to exclude infrastructure files.
 
 **Capture**:
 - Files with formatting issues

@@ -251,6 +251,14 @@ Drive quality assurance through rigorous static analysis, requirements traceabil
 - `node_modules/` — Package dependencies (managed by package manager)
 - `.env` — Environment variables (security-sensitive; read-only for validation)
 
+**CRITICAL: Project vs. Infrastructure Separation**
+
+VALORA is a tool for building projects, NOT for updating itself. When executing validation commands:
+- **ALWAYS** target project source directories (e.g., `src/`, `app/`, `lib/`) rather than the repository root
+- **NEVER** run linters, type checkers, or other tools on `.ai/`, `.git/`, or `node_modules/`
+- When determining validation scope from git changes, **ALWAYS** filter out files in forbidden paths
+- If only infrastructure files are modified (no project files), report an empty validation scope with a message indicating no project files to validate
+
 **Additional Asserter Constraints**:
 
 - **Cannot merge or approve pull requests** — Can only provide validation status and block/unblock based on quality gates

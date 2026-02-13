@@ -9,8 +9,10 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import {
 	InputValidator,
 	InputValidatorOptions,
+	isForbiddenPath,
 	validateCompletionOptions,
 	validateInput,
+	validateNotForbiddenPath,
 	validateToolCallArgs
 } from './input-validator';
 
@@ -399,5 +401,58 @@ describe('Security-focused validation', () => {
 
 		// Should have warnings about malicious patterns
 		expect(result.warnings.length).toBeGreaterThan(0);
+	});
+});
+
+describe('Forbidden Path Validation', () => {
+	describe('isForbiddenPath', () => {
+		it('should return true for paths starting with .ai/', () => {
+			expect(isForbiddenPath('.ai/config.json')).toBe(true);
+			expect(isForbiddenPath('.ai/agents/test.md')).toBe(true);
+			expect(isForbiddenPath('.ai/')).toBe(true);
+		});
+
+		it('should return true for paths with .ai in absolute paths', () => {
+			expect(isForbiddenPath('/workspaces/project/.ai/config.json')).toBe(true);
+			expect(isForbiddenPath('/home/user/project/.ai/prompts/test.md')).toBe(true);
+		});
+
+		it('should return true for Windows-style paths', () => {
+			expect(isForbiddenPath('.ai\\config.json')).toBe(true);
+			expect(isForbiddenPath('.ai\\agents\\test.md')).toBe(true);
+		});
+
+		it('should return false for paths not in .ai folder', () => {
+			expect(isForbiddenPath('src/index.ts')).toBe(false);
+			expect(isForbiddenPath('knowledge-base/docs.md')).toBe(false);
+			expect(isForbiddenPath('/home/user/project/src/main.ts')).toBe(false);
+		});
+
+		it('should return false for paths that contain .ai but not as a directory', () => {
+			expect(isForbiddenPath('src/ai-utils.ts')).toBe(false);
+			expect(isForbiddenPath('docs/.ai-readme.md')).toBe(false);
+		});
+	});
+
+	describe('validateNotForbiddenPath', () => {
+		it('should throw error for paths in .ai folder', () => {
+			expect(() => validateNotForbiddenPath('.ai/config.json', 'write to')).toThrow(
+				/Cannot write to files in \.ai\//
+			);
+		});
+
+		it('should include the operation type in error message', () => {
+			expect(() => validateNotForbiddenPath('.ai/test.md', 'delete')).toThrow(/Cannot delete files/);
+			expect(() => validateNotForbiddenPath('.ai/test.md', 'modify')).toThrow(/Cannot modify files/);
+		});
+
+		it('should include the original path in error message', () => {
+			expect(() => validateNotForbiddenPath('.ai/agents/test.md', 'write to')).toThrow(/Path: \.ai\/agents\/test\.md/);
+		});
+
+		it('should not throw for allowed paths', () => {
+			expect(() => validateNotForbiddenPath('src/index.ts', 'write to')).not.toThrow();
+			expect(() => validateNotForbiddenPath('knowledge-base/docs.md', 'modify')).not.toThrow();
+		});
 	});
 });

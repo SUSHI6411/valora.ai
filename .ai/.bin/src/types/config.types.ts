@@ -13,6 +13,11 @@ export interface Config {
 	features?: FeatureFlags;
 	paths?: PathsConfig;
 	providers: ProvidersConfig;
+	/**
+	 * Scope configuration for project boundaries
+	 * Controls which paths agents can access when working on user projects
+	 */
+	scope?: ScopeConfig;
 }
 
 /**
@@ -62,6 +67,10 @@ export interface PathsConfig {
 	sessions_dir?: string;
 }
 
+/**
+ * Scope configuration for defining project boundaries
+ * Controls which paths are included/excluded when VALORA operates on a codebase
+ */
 export interface ProviderConfig {
 	apiKey?: string;
 	baseUrl?: string;
@@ -76,6 +85,20 @@ export interface ProviderConfig {
 	vertexAI?: boolean;
 	vertexProjectId?: string;
 	vertexRegion?: string;
+}
+
+export interface ScopeConfig {
+	/**
+	 * Glob patterns for paths to exclude from VALORA operations
+	 * Default: ['.ai/**'] - excludes VALORA's own codebase
+	 * Used to prevent agents from modifying VALORA infrastructure when working on user projects
+	 */
+	excludePaths?: string[];
+	/**
+	 * Glob patterns for paths to include (if specified, only these paths are considered)
+	 * If not specified, all paths except excludePaths are included
+	 */
+	includePaths?: string[];
 }
 
 /**

@@ -39,17 +39,30 @@ Run type checkers to verify type correctness, interface compliance, null safety,
 
 ### Step 1: Run Type Checker
 
-Execute the project's type checker in strict mode:
+Execute the project's type checker in strict mode on **project files only**.
+
+**IMPORTANT: Infrastructure Exclusions**
+
+VALORA validates the project being built, NOT its own infrastructure. Always exclude:
+- `.ai/` - VALORA infrastructure
+- `.git/` - Git internal state
+- `node_modules/` - Package dependencies
 
 **TypeScript**:
 ```bash
-pnpm exec tsc --noEmit --strict
+# Use project's tsconfig (should already exclude infrastructure paths)
+pnpm exec tsc --noEmit --strict --project tsconfig.json
+
+# Or specify project directories explicitly
+pnpm exec tsc --noEmit --strict src/
 ```
 
 **Python** (if applicable):
 ```bash
 mypy src/ --strict
 ```
+
+**Note**: Ensure the project's `tsconfig.json` excludes `.ai/`, `.git/`, and `node_modules/` in its `exclude` array. If running without tsconfig, specify the project source directory explicitly rather than checking the root.
 
 **Capture**:
 - All type errors with location
@@ -85,15 +98,17 @@ If API specifications exist (OpenAPI, GraphQL):
 
 ### Step 5: Calculate Type Coverage
 
-Estimate type coverage percentage:
+Estimate type coverage percentage on **project source files only**:
 
 ```bash
-# TypeScript - check for 'any' usage
+# TypeScript - check for 'any' usage in project source (exclude .ai/)
 grep -r ":\s*any" src/ --include="*.ts" --include="*.tsx" | wc -l
 
-# Or use type-coverage tool
-pnpm exec type-coverage --at-least 95
+# Or use type-coverage tool on project source
+pnpm exec type-coverage --at-least 95 --project tsconfig.json
 ```
+
+**Note**: Always target project directories (e.g., `src/`) rather than the repository root to avoid including infrastructure files.
 
 ## Output Format
 

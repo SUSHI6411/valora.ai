@@ -537,8 +537,35 @@ export function validateInput(input: unknown): ValidationResult {
 /**
  * Paths that are forbidden from any write, delete, or modification operations.
  * These paths contain system configuration and should never be modified by commands, agents, or prompts.
+ * All patterns use forward slashes (paths are normalised before matching).
  */
-const FORBIDDEN_WRITE_PATHS = ['.ai/', '.ai\\'];
+const FORBIDDEN_WRITE_PATHS = ['.ai/'] as const;
+
+/**
+ * Normalise a file path to use forward slashes consistently
+ */
+function normalisePath(filePath: string) {
+	return filePath.replace(/\\/g, '/');
+}
+
+/**
+ * Check if a normalised path matches a forbidden pattern
+ */
+function matchesForbiddenPath(normalizedPath: string, forbiddenPattern: string) {
+	// Check if path starts with forbidden path (relative path)
+	// or contains the forbidden path anywhere (for absolute paths)
+	return normalizedPath.startsWith(forbiddenPattern) || normalizedPath.includes(`/${forbiddenPattern}`);
+}
+
+/**
+ * Create a forbidden path error with consistent messaging
+ */
+function createForbiddenPathError(operation: string, originalPath: string) {
+	return new Error(
+		`Cannot ${operation} files in .ai/ - this folder contains system configuration ` +
+			`for VALORA commands, agents, and prompts. Path: ${originalPath}`
+	);
+}
 
 /**
  * Validate that a path is not in the forbidden write paths.
@@ -549,25 +576,23 @@ const FORBIDDEN_WRITE_PATHS = ['.ai/', '.ai\\'];
  * @throws Error if the path is forbidden
  */
 export function validateNotForbiddenPath(path: string, operation: string): void {
-	const normalizedPath = path.replace(/\\/g, '/');
+	const normalizedPath = normalisePath(path);
 
-	for (const forbidden of FORBIDDEN_WRITE_PATHS) {
-		const normalizedForbidden = forbidden.replace(/\\/g, '/');
+	const isForbidden = FORBIDDEN_WRITE_PATHS.some((forbidden) => matchesForbiddenPath(normalizedPath, forbidden));
 
-		// Check if path starts with forbidden path (relative path)
-		if (normalizedPath.startsWith(normalizedForbidden)) {
-			throw new Error(
-				`Cannot ${operation} files in ${forbidden} - this folder contains system configuration ` +
-					`for VALORA commands, agents, and prompts. Path: ${path}`
-			);
-		}
-
-		// Check if path contains the forbidden path anywhere (for absolute paths)
-		if (normalizedPath.includes(`/${normalizedForbidden}`)) {
-			throw new Error(
-				`Cannot ${operation} files in ${forbidden} - this folder contains system configuration ` +
-					`for VALORA commands, agents, and prompts. Path: ${path}`
-			);
-		}
+	if (isForbidden) {
+		throw createForbiddenPathError(operation, path);
 	}
+}
+
+/**
+ * Check if a path is forbidden without throwing an error.
+ * Useful for conditional logic where you need to check before attempting an operation.
+ *
+ * @param path - The path to check (can be relative or absolute)
+ * @returns true if the path is forbidden, false otherwise
+ */
+export function isForbiddenPath(path: string): boolean {
+	const normalizedPath = normalisePath(path);
+	return FORBIDDEN_WRITE_PATHS.some((forbidden) => matchesForbiddenPath(normalizedPath, forbidden));
 }

@@ -50,8 +50,18 @@ Collect all necessary context to perform comprehensive assertion validation, inc
 
 Analyze the implementation details to understand what needs to be validated:
 
+**IMPORTANT: Exclude Infrastructure Paths**
+
+VALORA is a tool for building projects, not for updating itself. Always exclude the following paths from validation scope:
+- `.ai/` - VALORA infrastructure (agents, prompts, commands, tooling)
+- `.git/` - Git internal state
+- `node_modules/` - Package dependencies
+
+These paths are considered **infrastructure** and should never be included in project validation.
+
 1. **Modified files and components**
    - List all changed files from implementation_details
+   - **Filter out** any files in `.ai/`, `.git/`, or `node_modules/`
    - Identify component types (UI, API, utilities, tests)
    - Determine validation scope (frontend, backend, full-stack)
 
@@ -262,4 +272,6 @@ Return a structured context object:
 - If requirements are unavailable, set acceptance_criteria to empty array
 - Always set frontend_changes flag to determine accessibility validation need
 - Keep output concise - don't duplicate entire config files, just extract key rules
+- **CRITICAL**: Never include files from `.ai/`, `.git/`, or `node_modules/` in the validation scope. VALORA validates the project being built, NOT its own infrastructure
+- If no project files are modified (only infrastructure files), report an empty scope with a message indicating no project files to validate
 

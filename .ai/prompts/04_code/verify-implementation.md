@@ -70,20 +70,31 @@ This prompt verifies:
 7. **Performance** - No obvious inefficiencies
 8. **Completeness** - All plan requirements met
 
+**IMPORTANT: Infrastructure Exclusions**
+
+VALORA validates the project being built, NOT its own infrastructure. Always exclude from verification:
+- `.ai/` - VALORA infrastructure
+- `.git/` - Git internal state
+- `node_modules/` - Package dependencies
+
+Target specific project directories (e.g., `src/`, `app/`, `lib/`) rather than the repository root.
+
 ## Instructions
 
 ### Step 1: Run Linter
 
-Execute linter based on project configuration:
+Execute linter based on project configuration on **project source only**:
 
 **Node.js/TypeScript**:
 ```bash
-# ESLint
-pnpm exec eslint . --ext .ts,.tsx,.js,.jsx
+# ESLint - target project source (exclude infrastructure)
+pnpm exec eslint src --ext .ts,.tsx,.js,.jsx
 
 # With auto-fix (read-only check first)
-pnpm exec eslint . --ext .ts,.tsx,.js,.jsx --max-warnings 0
+pnpm exec eslint src --ext .ts,.tsx,.js,.jsx --max-warnings 0
 ```
+
+**Note**: Always target `src/` or project directories rather than `.` to avoid linting infrastructure files.
 
 **Python**:
 ```bash

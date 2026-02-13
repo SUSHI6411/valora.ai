@@ -42,13 +42,22 @@ Execute security scanning tools to detect vulnerabilities, hard-coded secrets, a
 
 ## Validation Steps
 
+**IMPORTANT: Infrastructure Exclusions**
+
+VALORA validates the project being built, NOT its own infrastructure. Always exclude from scanning:
+- `.ai/` - VALORA infrastructure
+- `.git/` - Git internal state
+- `node_modules/` - Package dependencies
+
+Target specific project directories (e.g., `src/`, `app/`, `lib/`) rather than the repository root.
+
 ### Step 1: Scan for OWASP Vulnerabilities
 
-Run security analysis tools:
+Run security analysis tools on **project source only**:
 
 ```bash
-# Semgrep for pattern-based security scanning
-pnpm exec semgrep --config auto src/
+# Semgrep for pattern-based security scanning (target project source)
+pnpm exec semgrep --config auto src/ --exclude ".ai" --exclude "node_modules"
 
 # Or CodeQL/Snyk if configured
 ```
@@ -70,13 +79,13 @@ pnpm exec semgrep --config auto src/
 
 ### Step 2: Scan for Hard-Coded Secrets
 
-Check for exposed credentials:
+Check for exposed credentials in **project source only**:
 
 ```bash
 # Use detect-secrets or similar
-pnpm exec detect-secrets scan --all-files
+pnpm exec detect-secrets scan --all-files --exclude-files ".ai/.*"
 
-# Or grep for common patterns
+# Or grep for common patterns in project source
 grep -r "password\s*=\s*['\"]" src/ --include="*.ts" --include="*.js"
 grep -r "api[_-]?key\s*=\s*['\"]" src/ --include="*.ts" --include="*.js"
 ```

@@ -55,13 +55,22 @@ Assess the quality of produced artifacts across code, tests, and review dimensio
 
 ## Instructions
 
+**IMPORTANT: Infrastructure Exclusions**
+
+VALORA evaluates the project being built, NOT its own infrastructure. Always exclude from quality evaluation:
+- `.ai/` - VALORA infrastructure
+- `.git/` - Git internal state
+- `node_modules/` - Package dependencies
+
+Target specific project directories (e.g., `src/`, `app/`, `lib/`) rather than the repository root.
+
 ### Step 1: Evaluate Code Quality (0-100)
 
 **Factors (weighted):**
 
-1. **Linter compliance (30%)**: Check for linting errors
+1. **Linter compliance (30%)**: Check for linting errors (on project source only)
    ```bash
-   npm run lint --silent || eslint . --format json
+   npm run lint --silent || eslint src --format json
    ```
    - 0 errors: 100%
    - 1-5 errors: 80%

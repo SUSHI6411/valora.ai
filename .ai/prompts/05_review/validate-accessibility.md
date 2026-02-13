@@ -42,14 +42,18 @@ Execute automated accessibility audits to verify WCAG compliance, proper ARIA im
 
 ### Step 1: Run Automated Accessibility Audits
 
-Execute accessibility scanning tools:
+Execute accessibility scanning tools on **project source only**.
+
+**IMPORTANT: Infrastructure Exclusions**
+
+VALORA validates the project being built, NOT its own infrastructure. Target project directories (e.g., `src/`, `app/`) rather than the repository root.
 
 ```bash
 # axe-core CLI (recommended)
 pnpm exec @axe-core/cli http://localhost:3000 --tags wcag2a,wcag2aa
 
-# Or eslint-plugin-jsx-a11y for React
-pnpm exec eslint src/ --ext .jsx,.tsx
+# Or eslint-plugin-jsx-a11y for React (exclude infrastructure)
+pnpm exec eslint src/ --ext .jsx,.tsx --ignore-pattern ".ai/**"
 
 # Or Pa11y
 pnpm exec pa11y http://localhost:3000

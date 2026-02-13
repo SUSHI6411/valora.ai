@@ -41,6 +41,15 @@ Verify implementation adheres to architectural patterns, respects module boundar
 
 ## Validation Steps
 
+**IMPORTANT: Infrastructure Exclusions**
+
+VALORA validates the project being built, NOT its own infrastructure. Always exclude from validation:
+- `.ai/` - VALORA infrastructure
+- `.git/` - Git internal state
+- `node_modules/` - Package dependencies
+
+Target specific project directories (e.g., `src/`, `app/`, `lib/`) rather than the repository root.
+
 ### Step 1: Check Design Pattern Adherence
 
 Review documented patterns from architectural_guidelines:
@@ -73,13 +82,15 @@ Check layer and module separation:
 
 **Detection**:
 ```bash
-# Check for circular dependencies
-pnpm exec madge --circular src/
+# Check for circular dependencies (target project source only)
+pnpm exec madge --circular src/ --exclude ".ai"
 
-# Check imports violating layers
+# Check imports violating layers in project source
 # Example: search for data imports in UI
 grep -r "import.*from.*data" src/components/
 ```
+
+**Note**: Always target `src/` or specific project directories rather than the repository root.
 
 ### Step 3: Detect Architectural Anti-Patterns
 
